@@ -1,4 +1,4 @@
-# NES-Projects Development Plan
+## NES-Projects Development Plan
 
 ## Goal
 Build working NES ROMs using 6502 assembly, targeting ca65/ld65 toolchain (cc65 suite).
@@ -15,21 +15,9 @@ Build working NES ROMs using 6502 assembly, targeting ca65/ld65 toolchain (cc65 
 4. [x] Add Makefile for building .nes ROMs
 5. [x] Add PPU initialization routines as reusable module
 6. [x] Add controller input reading module
+7. [x] Refactor mariotest to use shared lib modules and new build system
+8. [x] Add sprite DMA helper routines to ppu.in
 
 ## Next Steps
-1. [ ] Refactor mariotest to use shared lib modules and new build system
-2. [ ] Add sprite DMA helper routines to ppu.inc
-3. [ ] Build a simple sprite movement demo using input module
-4. [ ] Add CHR tile data and background rendering example
-5. [ ] Add NROM-256 (32KB PRG) linker config variant
-6. [ ] Investigate MMC1 mapper support for larger projects
-
-## Architecture
-- `/lib/` — reusable 6502 modules (header, ppu, input)
-- `/cfg/` — ld65 linker configs
-- `/src/` — individual ROM projects
-- `/build/` — output directory (gitignored)
-
-## References
-- https://www.nesdev.org/wiki/
-- ca65 Users Guide
+1. [ ] Load sprite data into CHR-RAM for rendering
+2. [ ] Implement basic movement based on controller input

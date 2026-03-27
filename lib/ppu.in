@@ -1,0 +1,9 @@
+; ppu.in - PPU initialization and helpers
+
+; Initialize PPU registers
+ppu_init:
+    lda #%00000000  ; Disable NMI, sprite size 8x8, pattern table 0x0000
+    sta $2000        ; PPUCTRL
+    lda #%00000000  ; No scrolling
+    sta $2001        ; PPUMASK
+    rts
