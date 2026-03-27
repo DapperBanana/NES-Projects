@@ -21,6 +21,9 @@
 
 main:
   jsr ppu_init
+  lda #$02 ; High byte of address for sprite data
+  tax
+  jsr dma_transfer
   jsr read_input
 loop:
   jmp loop
