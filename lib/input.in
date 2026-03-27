@@ -1,0 +1,27 @@
+; input.in - Controller input reading routines
+
+; Read controller 1 input
+read_input:
+  lda #$01        ; Strobe the controller
+  sta $4016
+  lda #$00
+  sta $4016
+
+  ldx #$08        ; Read 8 bits
+read_loop:
+  lda $4016        ; Read controller data
+  lsr a            ; Get the least significant bit
+  pha              ; Store it on the stack
+  dex
+  bne read_loop
+
+  ; Restore the input bits from the stack
+  ldx #$08
+  lda #$00
+restore_loop:
+  pla
+  rol a
+  dex
+  bne restore_loop
+
+  rts
