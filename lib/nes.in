@@ -1,0 +1,15 @@
+; nes.in - iNES header definition
+
+INES_HEADER_SIZE = 16
+
+.struct iNESHeader
+  magic   .res 4 ; Constant $4E $45 $53 $1A ("NES" followed by $1A)
+  prg_rom .res 1 ; Number of 16KB PRG-ROM banks
+  chr_rom .res 1 ; Number of 8KB CHR-ROM banks (0 means CHR-RAM)
+  flags6  .res 1 ; Mapper, mirroring, battery, trainer
+  flags7  .res 1 ; Mapper, VS/PlayChoice arcade, NES 2.0
+  prg_ram .res 1 ; Number of 8KB PRG-RAM banks (rarely used, often 0)
+  flags9  .res 1 ; TV system (0: NTSC, 1: PAL)
+  flags10 .res 1; TV system (fine revision), PRG-RAM presence
+  padding .res 5 ; Unused padding (should be 0)
+.endstruct
