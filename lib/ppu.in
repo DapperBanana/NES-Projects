@@ -7,3 +7,10 @@ ppu_init:
     lda #%00000000  ; No scrolling
     sta $2001        ; PPUMASK
     rts
+
+; Transfer 256 bytes of sprite data to OAM via DMA
+; X register: High byte of source address in CPU memory ($0000-$FFFF)
+dma_transfer:
+  sta $2003 ; Write sprite RAM address (usually $00) to $2003
+  stx $4014 ; Start DMA transfer from $XX00 to sprite RAM
+rts
