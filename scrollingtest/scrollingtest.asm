@@ -69,7 +69,7 @@ main_loop:
   beq no_scroll
     inc SCROLL_X
     lda SCROLL_X
-    sta PPU_SCROLL ; Horizontal scroll
+    sta $2005 ; PPU_SCROLL ; Horizontal scroll
 no_scroll:
 
   ; Wait for VBlank
