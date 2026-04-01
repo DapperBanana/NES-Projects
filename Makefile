@@ -1,20 +1,21 @@
-CA65 = ca65
-LD65 = ld65
-CFG  = cfg/nrom128.cfg
+all: hello.nes mariotest/mariotest.nes scrollingtest/scrollingtest.nes
 
-BUILDDIR = build
+hello.nes: hello.asm
+	ca65 hello.asm
+	ld65 -C nes.cfg -o hello.nes hello.o lib/nes.o lib/ppu.o lib/input.o
 
-.PHONY: all clean hello
+mariotest/mariotest.nes: mariotest/mariotest.asm
+	$(MAKE) -C mariotest
 
-all: hello
-
-hello: $(BUILDDIR)/hello.nes
-
-$(BUILDDIR)/hello.nes: src/hello/hello.asm lib/ines_header.inc lib/ppu.inc $(CFG)
-	@mkdir -p $(BUILDDIR)
-	$(CA65) -o $(BUILDDIR)/hello.o src/hello/hello.asm
-	$(LD65) -C $(CFG) -o $@ $(BUILDDIR)/hello.o
-	@echo "Built $@"
+scrollingtest/scrollingtest.nes: scrollingtest/scrollingtest.asm
+	$(MAKE) -C scrollingtest
 
 clean:
-	rm -rf $(BUILDDIR)
+	rm -f *.o *.nes
+	$(MAKE) -C mariotest clean
+	$(MAKE) -C scrollingtest clean
+
+run:
+	mednafen hello.nes
+	mednafen mariotest/mariotest.nes
+	mednafen scrollingtest/scrollingtest.nes
