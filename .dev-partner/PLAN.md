@@ -17,7 +17,7 @@ Build working NES ROMs using 6502 assembly, targeting ca65/ld65 toolchain (cc65 
 6. [x] Add controller input reading module
 7. [x] Refactor mariotest to use shared lib modules and new build system
 8. [x] Add sprite DMA helper routines to ppu.in
+9. [x] Add basic horizontal scrolling test ROM
 
-## Next Steps
-1. [ ] Load sprite data into CHR-RAM for rendering
-2. [ ] Implement basic movement based on controller input
+## Next Step
+Implement vertical scrolling and background updates for dynamic levels.
