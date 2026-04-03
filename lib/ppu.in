@@ -1,16 +1,114 @@
-; ppu.in - PPU initialization and helpers
+; PPU utility routines
+; Include this file in your project assembly source
 
-; Initialize PPU registers
-ppu_init:
-    lda #%00000000  ; Disable NMI, sprite size 8x8, pattern table 0x0000
-    sta $2000        ; PPUCTRL
-    lda #%00000000  ; No scrolling
-    sta $2001        ; PPUMASK
+; ---------------------------------------------------------------------------
+; ppu_off - Turn off NMI, rendering
+; ---------------------------------------------------------------------------
+.macro ppu_off
+    lda #$00
+    sta $2000
+    sta $2001
+.endmacro
+
+; ---------------------------------------------------------------------------
+; ppu_on - Enable NMI, enable sprites + background
+; ---------------------------------------------------------------------------
+.macro ppu_on
+    lda #$90            ; NMI enable, 8x8 sprites, bg from $0000, sprites from $1000
+    sta $2000
+    lda #$1e            ; show bg + sprites, no clipping
+    sta $2001
+.endmacro
+
+; ---------------------------------------------------------------------------
+; ppu_wait_vblank - Spin until VBLANK flag set in $2002
+; ---------------------------------------------------------------------------
+.macro ppu_wait_vblank
+.local @loop
+@loop:
+    bit $2002
+    bpl @loop
+.endmacro
+
+; ---------------------------------------------------------------------------
+; sprite_dma - Trigger OAM DMA from page in A
+;   usage: lda #$02 / sprite_dma   (transfers $0200-$02FF)
+; ---------------------------------------------------------------------------
+.macro sprite_dma
+    sta $4014
+.endmacro
+
+; ---------------------------------------------------------------------------
+; ppu_set_addr - Set VRAM address to 16-bit immediate
+;   usage: ppu_set_addr $2000
+; ---------------------------------------------------------------------------
+.macro ppu_set_addr addr
+    bit $2002           ; reset address latch
+    lda #>addr
+    sta $2006
+    lda #<addr
+    sta $2006
+.endmacro
+
+; ---------------------------------------------------------------------------
+; ppu_set_scroll - Set scroll position
+;   usage: ppu_set_scroll xscroll, yscroll
+; ---------------------------------------------------------------------------
+.macro ppu_set_scroll xpos, ypos
+    bit $2002
+    lda xpos
+    sta $2005
+    lda ypos
+    sta $2005
+.endmacro
+
+; ---------------------------------------------------------------------------
+; nametable_clear - Fill a nametable with a given tile index
+;   Clobbers: A, X, Y
+;   Arguments: addr   - nametable base address (e.g. $2000)
+;              tile   - tile byte to fill with
+; ---------------------------------------------------------------------------
+; Call as a subroutine: ppu must be off before calling
+;
+; nametable_clear_impl expects:
+;   $00/$01 = destination VRAM address (big-endian, hi first)
+;   $02     = fill tile
+.proc nametable_clear_impl
+    ; set VRAM address
+    bit $2002
+    lda $00
+    sta $2006
+    lda $01
+    sta $2006
+
+    ; 30 rows * 32 cols = 960 bytes for tiles
+    ; write in two loops: high byte count in X, low in Y
+    ldx #3              ; 3 * 256 = 768... need 960 total
+    ldy #$c0            ; remaining 192 bytes in last partial pass
+    lda $02
+row_outer:
+    cpx #0
+    beq row_partial
+row_inner:
+    sta $2007
+    dey
+    bne row_inner
+    dex
+    bne row_outer
+row_partial:
+    ldy #$c0
+@last:
+    sta $2007
+    dey
+    bne @last
+
+    ; fill attribute table (64 bytes) with $00
+    lda #$00
+    ldy #64
+@attr:
+    sta $2007
+    dey
+    bne @attr
+
     rts
-
-; Transfer 256 bytes of sprite data to OAM via DMA
-; X register: High byte of source address in CPU memory ($0000-$FFFF)
-dma_transfer:
-  sta $2003 ; Write sprite RAM address (usually $00) to $2003
-  stx $4014 ; Start DMA transfer from $XX00 to sprite RAM
-rts
+.endproc
