@@ -1,15 +1,15 @@
 ; input.asm
-; Provides basic joystick input reading
+; Provides basic joystick input reading for NES.
 
 .export input_read
 
-JOYPAD1   = $4016
-JOYPAD1_STATUS = $4016
+JOYPAD1   = $4016  ; Write to this address to strobe the controller
+JOYPAD1_STATUS = $4016 ; Read from this address to get controller status
 
 .segment "CODE"
 
 ; Reads joystick 1 input.  Returns the status in A.
-; Destroys X, Y
+; Destroys X
 input_read:
   ; Strobe the joystick to reset the shift register
   lda #$01
@@ -31,8 +31,8 @@ read_loop:
   rts
 
 .segment "ZEROPAGE"
-joy_status: .res 1
-joy_status_mirror: .res 1
+joy_status: .res 1 ; Current joypad status (bits for each button)
+joy_status_mirror: .res 1 ; Mirror of joy_status for usage in main code segment
 
 
 ; Define button constants (bits in joy_status)
