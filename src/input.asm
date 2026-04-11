@@ -1,45 +1,46 @@
-;; NES Controller Input Module
-;;
-;; Reads the state of the two NES controllers
-;;
-;; Public functions:
-;;   read_controllers: Reads controller states into controller1_state and controller2_state
+; input.asm
+; Provides basic joystick input reading
 
-.export read_controllers
-.export controller1_state
-.export controller2_state
+.export input_read
 
-.segment "ZEROPAGE"
-
-controller_strobe: .res 1 ; Zero page location for controller strobe bit
-controller1_state: .res 1 ; Zero page location for controller 1 state
-controller2_state: .res 1 ; Zero page location for controller 2 state
+JOYPAD1   = $4016
+JOYPAD1_STATUS = $4016
 
 .segment "CODE"
 
-read_controllers:
-    ; Strobe the controllers to capture input
-    lda #$01
-    sta $4016
-    lda #$00
-    sta $4016
+; Reads joystick 1 input.  Returns the status in A.
+; Destroys X, Y
+input_read:
+  ; Strobe the joystick to reset the shift register
+  lda #$01
+  sta JOYPAD1
+  lda #$00
+  sta JOYPAD1
 
-    ; Read controller 1
-    ldx #$08 ; 8 bits to read
-read_controller1_loop:
-    lda $4016
-    lsr a        ; Least significant bit contains controller state
-    rol controller1_state
-    dex
-    bne read_controller1_loop
+  ; Read the joystick data bit by bit
+  ldx #$08  ; Read 8 bits (one for each button)
+read_loop:
+  lda JOYPAD1_STATUS
+  lsr         ; Get the next bit into carry
+  rol joy_status ; Rotate carry into the joy_status byte
+  dex
+  bne read_loop
 
-    ; Read controller 2
-    ldx #$08
-read_controller2_loop:
-    lda $4017
-    lsr a
-    rol controller2_state
-    dex
-    bne read_controller2_loop
+  lda joy_status
+  sta joy_status_mirror ;update mirror as well
+  rts
 
-    rts
+.segment "ZEROPAGE"
+joy_status: .res 1
+joy_status_mirror: .res 1
+
+
+; Define button constants (bits in joy_status)
+RIGHT   = %00000001
+LEFT    = %00000010
+DOWN    = %00000100
+UP      = %00001000
+START   = %00010000
+SELECT  = %00100000
+B_BUTTON = %01000000
+A_BUTTON = %10000000
