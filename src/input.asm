@@ -1,46 +1,36 @@
 ; input.asm
-; Provides basic joystick input reading for NES.
+; Reads joystick input
 
 .export input_read
+.export joy_status
 
-JOYPAD1   = $4016  ; Write to this address to strobe the controller
-JOYPAD1_STATUS = $4016 ; Read from this address to get controller status
+.zeropage
+joy_status_mirror: .res 1 ; Mirrored joy_status for safe access
 
-.segment "CODE"
+.bss
+joy_status: .res 1 ; Current joystick status
 
-; Reads joystick 1 input.  Returns the status in A.
-; Destroys X
+;------------------------------------------------------------------------------
+; Subroutine: input_read
+; Reads the status of the joystick into memory.
+; Overwrites A, X, and Y registers
+;------------------------------------------------------------------------------
 input_read:
-  ; Strobe the joystick to reset the shift register
-  lda #$01
-  sta JOYPAD1
-  lda #$00
-  sta JOYPAD1
+  LDA #$01        ; Strobe the joystick
+  STA $4016
+  STA $4016
 
-  ; Read the joystick data bit by bit
-  ldx #$08  ; Read 8 bits (one for each button)
+  LDX #$08        ; 8 bits to read
 read_loop:
-  lda JOYPAD1_STATUS
-  lsr         ; Get the next bit into carry
-  rol joy_status ; Rotate carry into the joy_status byte
-  dex
-  bne read_loop
+  LDA $4016       ; Read the joystick
+  AND #$01        ; Get the bit
+  LSR A           ; Shift to correct position
+  ROR joy_status  ; Rotate into joy_status (LSB first)
 
-  lda joy_status
-  sta joy_status_mirror ;update mirror as well
-  rts
+  DEX
+  BNE read_loop
 
-.segment "ZEROPAGE"
-joy_status: .res 1 ; Current joypad status (bits for each button)
-joy_status_mirror: .res 1 ; Mirror of joy_status for usage in main code segment
+  LDA joy_status
+  STA joy_status_mirror
 
-
-; Define button constants (bits in joy_status)
-RIGHT   = %00000001
-LEFT    = %00000010
-DOWN    = %00000100
-UP      = %00001000
-START   = %00010000
-SELECT  = %00100000
-B_BUTTON = %01000000
-A_BUTTON = %10000000
+  RTS
