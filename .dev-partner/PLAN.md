@@ -12,9 +12,8 @@ Build working NES ROMs using 6502 assembly, targeting ca65/ld65 toolchain (cc65 
 - Basic joystick input reading. Uses inline for input_read now instead of macros.
 - Fixes to joystick input reading logic, mirroring joy_status for safe access.
 - Added oam_set_sprite macro for simplified sprite register setting
+- OAM init function clears OAM
 
 ## Completed
 1. [x] Add proper iNES header module that can be included by projects
-2. [x] Set up ca65/ld65 linker config for standard NROM-128 mapper
-3. [x] Create a minimal "hello world" ROM that sets background color
-4. [x] Add Makefile for 
+2. [x] Set up ca65/ld65 linker config for
