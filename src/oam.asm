@@ -2,6 +2,7 @@
 
 .export oam_dma
 
+; oam_dma
 ; Transfers 256 bytes from RAM to OAM using DMA
 ; Expects the high byte of the source address in A
 oam_dma:
