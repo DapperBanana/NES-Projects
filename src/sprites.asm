@@ -10,22 +10,20 @@
 ; attr: Attributes of the sprite (e.g. palette, flip)
 sprite_draw:
   pha ; Save A
-  phx ; Save X
   phy ; Save Y
 
   lda y
-  sta oam_buffer,y
-  iny
+  sta oam_buffer,x
+  inx
   lda tile
-  sta oam_buffer,y
-  iny
+  sta oam_buffer,x
+  inx
   lda attr
-  sta oam_buffer,y
-  iny
+  sta oam_buffer,x
+  inx
   lda x
-  sta oam_buffer,y
+  sta oam_buffer,x
 
   ply ; Restore Y
-  plx ; Restore X
   pla ; Restore A
   rts
