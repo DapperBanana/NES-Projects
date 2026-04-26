@@ -3,11 +3,13 @@
 
 .include "src/macros.asm"
 
-; Draws a sprite at a given x, y coordinate with a given tile index and attributes
-; x: X coordinate of the sprite (0-255)
-; y: Y coordinate of the sprite (0-239)
-; tile: Tile index of the sprite (0-255)
-; attr: Attributes of the sprite (e.g. palette, flip)
+; sprite_draw
+; Draws a sprite at a given index in OAM
+; Expects X to be the index into OAM (0-255, *4 for sprite number)
+; a = tile
+; x = OAM index
+; y = y coordinate
+; Assumes attributes set elsewhere. Fast call. 
 sprite_draw:
   pha ; Save A
   phy ; Save Y
@@ -15,15 +17,20 @@ sprite_draw:
   lda y
   sta oam_buffer,x
   inx
-  lda tile
+  lda a
   sta oam_buffer,x
   inx
-  lda attr
+  lda sprite_attr
   sta oam_buffer,x
   inx
-  lda x
+  lda sprite_x
   sta oam_buffer,x
 
   ply ; Restore Y
   pla ; Restore A
   rts
+
+.segment "ZEROPAGE"
+sprite_x: .res 1 ; X coordinate of the sprite
+sprite_y: .res 1 ; Y coordinate of the sprite
+sprite_attr: .res 1 ; Attributes of the sprite
