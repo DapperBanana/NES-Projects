@@ -13,20 +13,24 @@ reset:
   ; Set sprite attributes (palette 0, no flips)
   lda #%00000000
   sta sprite_attr
+  lda #64
+  sta sprite_x
+  lda #64
+  sta sprite_y
 
 main_loop:
   ; Draw a sprite at (64, 64), tile index 0
   ldx #0  ; OAM index (sprite 0)
   lda #0  ; Tile index
-  ldy #64 ; Y coordinate
-  sta sprite_x
   jsr sprite_draw
 
   ; Draw another sprite at (128, 128), tile index 1
+  lda #128
+  sta sprite_x
+  lda #128
+  sta sprite_y
   ldx #4  ; OAM index (sprite 1)
   lda #1  ; Tile index
-  ldy #128 ; Y coordinate
-  sta sprite_x
   jsr sprite_draw
 
   jsr input_read
